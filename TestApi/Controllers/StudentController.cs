@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
+using TestApi.Models.Dto;
 using TestApi.Models.Entity;
 using TestApi.Services;
 
@@ -23,8 +24,8 @@ namespace TestApi.Controllers
         {
             try
             {
-                await this._studentService.GetAll();
-                return Ok();
+                var students = await this._studentService.GetAll();
+                return Ok(students);
             }
             catch (Exception ex)
             {
@@ -33,11 +34,11 @@ namespace TestApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Student student)
+        public async Task<IActionResult> Create(StudentCreateRequestDto dto)
         {
             try
             {
-                await this._studentService.CreateAsync(student);
+                await this._studentService.CreateAsync(dto);
                 return Ok();
             }
             catch (Exception ex)
