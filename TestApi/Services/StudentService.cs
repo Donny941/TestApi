@@ -13,7 +13,7 @@ namespace TestApi.Services
 
         }
 
-        private static StudentResponseDto Convert(Student student)
+        private static StudentResponseDto ConvertResponse(Student student)
         {
             StudentResponseDto stud = new StudentResponseDto()
             {
@@ -30,6 +30,7 @@ namespace TestApi.Services
         public async Task<List<StudentResponseDto>> GetAll()
         {
             var students = await _AppDbContext.Student
+            .Where(s => !s.IsDeleted)
             .Include(s => s.Profile)
             .AsNoTracking()
             .ToListAsync();
@@ -37,13 +38,13 @@ namespace TestApi.Services
             var result = new List<StudentResponseDto>();
             foreach (Student student in students)
             {
-                result.Add(Convert(student));
+                result.Add(ConvertResponse(student));
             }
 
             return result;
         }
 
-        private static Student Convert(StudentCreateRequestDto dto)
+        private static Student ConvertStud(StudentCreateRequestDto dto)
         {
             Student stud = new Student()
             {
@@ -56,9 +57,48 @@ namespace TestApi.Services
 
         public async Task<bool> CreateAsync(StudentCreateRequestDto dto)
         {
-            var student = Convert(dto);
+            var student = ConvertStud(dto);
             await _AppDbContext.Student.AddAsync(student);
             return await SaveAsync();
+        }
+
+        public async Task<StudentResponseDto> UpdateAsync(Guid id, StudentUpdateRequestDto dto)
+        {
+            var student = await _AppDbContext.Student
+                                .Include(s => s.Profile)
+                                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (student == null)
+            {
+                return null;
+            }
+
+            student.Name = dto.Name;
+            student.LastName = dto.LastName;
+            student.Email = dto.Email;
+
+            await SaveAsync();
+
+            return ConvertResponse(student);
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var student = await _AppDbContext.Student
+                                .Include(s => s.Profile)
+                                .FirstOrDefaultAsync(s => s.Id == id);
+
+
+            if (student == null)
+            {
+                return false;
+            }
+
+            student.IsDeleted = true;
+
+            await SaveAsync();
+
+            return true;
         }
     }
 }
