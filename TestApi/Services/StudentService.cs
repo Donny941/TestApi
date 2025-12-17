@@ -17,7 +17,6 @@ namespace TestApi.Services
         {
             StudentResponseDto stud = new StudentResponseDto()
             {
-                Id = student.Id,
                 Name = student.Name,
                 LastName = student.LastName,
                 Email = student.Email,

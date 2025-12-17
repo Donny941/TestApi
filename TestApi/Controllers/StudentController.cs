@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
@@ -20,6 +21,7 @@ namespace TestApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -73,6 +75,7 @@ namespace TestApi.Controllers
             try
             {
                 var result = await _studentService.DeleteAsync(id);
+
                 if (!result)
                 {
                     return NotFound();
